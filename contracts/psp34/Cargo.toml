@@ -1,8 +1,8 @@
 [package]
-name = "pallet_marketplace"
-version = "0.2.0"
-authors = ["Stake Technologies <devops@stake.co.jp>"]
+name = "test_psp34"
+version = "1.0.0"
 edition = "2021"
+authors = ["The best developer ever"]
 
 [dependencies]
 ink_primitives = { version = "3.4.0", default-features = false }
@@ -16,11 +16,14 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 openbrush = { tag = "v2.3.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ownable", "psp34", "reentrancy_guard"] }
-shiden34 = { path = "../contracts/shiden34", default-features = false, features = ["ink-as-dependency"] }
 
 [lib]
+name = "test_psp34"
 path = "lib.rs"
-crate-type = ["rlib"]
+crate-type = [
+    # Used for normal contract Wasm blobs.
+    "cdylib",
+]
 
 [features]
 default = ["std"]
@@ -34,6 +37,7 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
+
     "openbrush/std",
-    "shiden34/std",
 ]
+ink-as-dependency = [] 

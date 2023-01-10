@@ -1,17 +1,42 @@
-use crate::impls::marketplace::types::MarketplaceError;
+use crate::impls::marketplace::types::{
+    MarketplaceError,
+    RegisteredCollection,
+};
 use ink_env::Hash;
 use openbrush::{
     contracts::psp34::Id,
-    traits::{AccountId, Balance, String},
+    traits::{
+        AccountId,
+        Balance,
+        String,
+    },
 };
 
 #[openbrush::trait_definition]
 pub trait MarketplaceSale {
-    /// Add NFT contract to the marketplace.
+    /// Adds a NFT contract to the marketplace.
     #[ink(message)]
-    fn factory(&mut self, hash: Hash, ipfs: String) -> Result<(), MarketplaceError>;
+    fn factory(
+        &mut self,
+        marketplace_ipfs: String,
+        royalty_receiver: AccountId,
+        royalty: u16,
+        nft_name: String,
+        nft_symbol: String,
+        nft_base_uri: String,
+        nft_max_supply: u64,
+        nft_price_per_mint: Balance,
+    ) -> Result<AccountId, MarketplaceError>;
 
-    /// Create NFT item sale on the marketplace.
+    /// Sets a hash of a Shiden34 contract to be instantiated by factory call.
+    #[ink(message)]
+    fn set_nft_contract_hash(&mut self, contract_hash: Hash) -> Result<(), MarketplaceError>;
+
+    /// Gets Shiden34 contract hash.
+    #[ink(message)]
+    fn nft_contract_hash(&self) -> Hash;
+
+    /// Creates a NFT item sale on the marketplace.
     #[ink(message)]
     fn list(
         &mut self,
@@ -20,20 +45,31 @@ pub trait MarketplaceSale {
         price: Balance,
     ) -> Result<(), MarketplaceError>;
 
-    /// Removes NFT from the marketplace sale.
-    fn unlist(
+    /// Removes a NFT from the marketplace sale.
+    #[ink(message)]
+    fn unlist(&mut self, contract_address: AccountId, token_id: Id)
+        -> Result<(), MarketplaceError>;
+
+    /// Buys NFT item from the marketplace.
+    #[ink(message, payable)]
+    fn buy(&mut self, contract_address: AccountId, token_id: Id) -> Result<(), MarketplaceError>;
+
+    /// Registers NFT collection to the marketplace.
+    #[ink(message)]
+    fn register(
         &mut self,
         contract_address: AccountId,
-        token_id: Id,
+        royalty_receiver: AccountId,
+        royalty: u16,
+        marketplace_ipfs: String,
     ) -> Result<(), MarketplaceError>;
 
-    /// Buy NFT item from the marketplace.
-    #[ink(message, payable)]
-    fn buy(&mut self, contract_address: AccountId, token_id: u64) -> Result<(), MarketplaceError>;
-
-    /// Registers NFT contract to the marketplace.
+    /// Gets registered collection.
     #[ink(message)]
-    fn register(&mut self, contract_address: AccountId) -> Result<(), MarketplaceError>; 
+    fn get_registered_collection(
+        &self,
+        contract_address: AccountId,
+    ) -> Option<RegisteredCollection>;
 
     /// Sets the marketplace fee.
     #[ink(message)]
@@ -43,7 +79,27 @@ pub trait MarketplaceSale {
     #[ink(message)]
     fn get_marketplace_fee(&self) -> u16;
 
-    /// Checks if NFT token is listed on the marketplace.
+    /// Gets max fee that can be applied to an item price.
     #[ink(message)]
-    fn is_listed(&self, contract_address: AccountId, token_id: Id) -> Option<u16>;
+    fn get_max_fee(&self) -> u16;
+
+    /// Checks if NFT token is listed on the marketplace and returns token price.
+    #[ink(message)]
+    fn get_price(&self, contract_address: AccountId, token_id: Id) -> Option<Balance>;
+
+    /// Sets contract metadata (ipfs url)
+    #[ink(message)]
+    fn set_contract_metadata(
+        &mut self,
+        contract_address: AccountId,
+        ipfs: String,
+    ) -> Result<(), MarketplaceError>;
+
+    /// Gets the marketplace fee recipient.
+    #[ink(message)]
+    fn get_fee_recipient(&self) -> AccountId;
+
+    /// Sets the marketplace fee recipient.
+    #[ink(message)]
+    fn set_fee_recipient(&mut self, fee_recipient: AccountId) -> Result<(), MarketplaceError>;
 }

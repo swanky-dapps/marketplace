@@ -1,5 +1,5 @@
 [package]
-name = "pallet_marketplace"
+name = "shiden34"
 version = "0.2.0"
 authors = ["Stake Technologies <devops@stake.co.jp>"]
 edition = "2021"
@@ -16,24 +16,27 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 openbrush = { tag = "v2.3.0", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["ownable", "psp34", "reentrancy_guard"] }
-shiden34 = { path = "../contracts/shiden34", default-features = false, features = ["ink-as-dependency"] }
+pallet_payable_mint = { version="0.2.0", git = "https://github.com/swanky-dapps/nft", default-features = false }
+
 
 [lib]
+name = "shiden34"
 path = "lib.rs"
-crate-type = ["rlib"]
+crate-type = [
+	"cdylib",
+    "rlib",
+]
 
 [features]
 default = ["std"]
 std = [
-    "ink_primitives/std",
-    "ink_metadata",
     "ink_metadata/std",
     "ink_env/std",
     "ink_storage/std",
-    "ink_lang/std",
+    "ink_primitives/std",
     "scale/std",
-    "scale-info",
     "scale-info/std",
     "openbrush/std",
-    "shiden34/std",
+    "pallet_payable_mint/std",
 ]
+ink-as-dependency = []
